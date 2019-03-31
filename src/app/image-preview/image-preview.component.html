@@ -1,10 +1,4 @@
-<input
-  type="file"
-  accept="image/*"
-  hidden
-  (change)="change(inputRef)"
-  #inputRef
-/>
+<input type="file" accept="image/*" hidden (change)="change(inputRef)" #inputRef />
 <div (click)="inputRef.click()">
   <img *ngIf="preview" [src]="preview" />
   <span>点击上传</span>
