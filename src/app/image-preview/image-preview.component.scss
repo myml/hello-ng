@@ -1,0 +1,11 @@
+div{
+    width: 200px;
+    height: 200px;
+    border:2px gray dashed;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+}
+img[src]+span{
+    display: none;
+}
