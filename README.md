@@ -97,4 +97,12 @@ export class ImagePreviewComponent implements OnInit {
 }
 ```
 
-在这里使用[DomSanitizer.bypassSecurityTrustUrl](https://angular.cn/api/platform-browser/DomSanitizer#bypasssecuritytrusturl)让生成的 blob 链接绕过安全检查,因为我们信任浏览器生成的链接(_当链接来源于用户输入，就要小心你的信任别被辜负了_)
+在这里使用[DomSanitizer.bypassSecurityTrustUrl](https://angular.cn/api/platform-browser/DomSanitizer#bypasssecuritytrusturl)让生成的 blob 链接绕过安全检查,因为我们信任浏览器生成的链接(_当链接来源于用户输入，就要小心你的信任别被辜负了_)  
+到此为止，它已经可以正常工作了，但图片上传预览只是表单的一小部分，下面来把它封装为 Angular 表单组件。
+
+# ControlValueAccessor
+
+Angular 中提供了两种方式处理表单输入
+
+1. 模板驱动表单
+1. 响应式表单

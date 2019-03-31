@@ -7,4 +7,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'hello-ng';
+  formData = {
+    name: '',
+    img: '',
+  };
+  submit() {
+    console.log(this.formData);
+  }
 }

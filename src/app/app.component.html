@@ -1,1 +1,7 @@
-<app-image-preview></app-image-preview>
+<form>
+  姓名：<input name="name" type="text" [(ngModel)]="formData.name" />
+  <br />
+  照片： <app-image-preview name="img" [(ngModel)]="formData.img"></app-image-preview>
+  <br />
+  <button (click)="submit()">提交</button>
+</form>
