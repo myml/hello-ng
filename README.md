@@ -67,7 +67,8 @@ img[src] + span {
 
 > 默认把所有值都当做不可信任的。[angular 安全相关文档](https://angular.cn/guide/security)
 
-结果误伤了 blob 链接，在浏览器中审查元素可看到链接前面添加了 unsafe 标示![深度截图_选择区域_20190331135331](https://docs.deepin.io/wp-content/uploads/2019/03/深度截图_选择区域_20190331135331.png)
+结果误伤了 blob 链接，在浏览器中审查元素可看到链接前面添加了 unsafe 标示  
+![深度截图_选择区域_20190331135331](https://docs.deepin.io/wp-content/uploads/2019/03/深度截图_选择区域_20190331135331.png)
 
 这种情况就要[DomSanitizer](https://angular.cn/api/platform-browser/DomSanitizer#description)出马了。
 
@@ -106,3 +107,63 @@ Angular 中提供了两种方式处理表单输入
 
 1. 模板驱动表单
 1. 响应式表单
+
+两种控制方式虽然[各有优劣](https://angular.cn/guide/forms-overview#key-differences),但底层都是通过[ControlValueAccessor
+](https://angular.cn/api/forms/ControlValueAccessor)充当 angular 和 dom 元素的桥梁，所以只要组件实现 ControlValueAccessor 接口，就可在两种表单中使用。
+
+```typescript
+interface ControlValueAccessor {
+  writeValue(obj: any): void
+  registerOnChange(fn: any): void
+  registerOnTouched(fn: any): void
+  setDisabledState(isDisabled: boolean)?: void
+}
+```
+
+要继承 ControlValueAccessor 接口，需要实现四个方法。  
+`writeValue`和`setDisabledState`类似，只不过一个用于设置值，一个用于设置禁用状态。这两个方法提供给外部调用，需要组件在这两个函数被调用时，设置组件自身的值或状态。
+
+`registerOnChange`和`registerOnTouched`类似，用于注册回调函数，这里的`fn`类似`addEventListener(***,callback)`传递的`callback`函数，当组件内发生值的变动或者组件被触碰时，组件需要主动调用传递进来的`fn`函数。
+最终组件实现
+
+```typescript
+@Component({
+  selector: 'app-image-preview',
+  templateUrl: './image-preview.component.html',
+  styleUrls: ['./image-preview.component.scss'],
+  providers: [
+    {
+      multi: true,
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: ImagePreviewComponent,
+    },
+  ],
+})
+export class ImagePreviewComponent implements OnInit, ControlValueAccessor {
+  preview: SafeUrl;
+  constructor(private safe: DomSanitizer) {}
+  onChange: (value: string) => void;
+  ngOnInit() {}
+
+  change(input: HTMLInputElement) {
+    if (input.files.length < 1) {
+      return;
+    }
+    const file = input.files[0];
+    const url = window.URL.createObjectURL(file);
+    this.onChange(url);
+    this.preview = this.safe.bypassSecurityTrustUrl(url);
+  }
+
+  writeValue(obj: any): void {
+    this.preview = obj;
+  }
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn: any): void {}
+  setDisabledState?(isDisabled: boolean): void {}
+}
+```
+
+这里组件并不支持禁用和触碰(其实是偷懒)就不必实现`registerOnTouched`和`setDisabledState`。
